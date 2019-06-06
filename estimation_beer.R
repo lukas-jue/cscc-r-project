@@ -24,9 +24,9 @@ memory.limit(size=1000000)
 
 load("Estimation_Data_Beer_20170423.Rdata")
 
-products = c("Amstel Extra Lata 37,5 cl","Amstel Extra Lata 33 cl","Amstel Lata 37,5 cl","Amstel Lata 33 cl","Amstel Clásica Lata 33 cl",
+products = c("Amstel Extra Lata 37,5 cl","Amstel Extra Lata 33 cl","Amstel Lata 37,5 cl","Amstel Lata 33 cl","Amstel Cl?sica Lata 33 cl",
              "Cruzcampo Lata 33 cl","Estrella Damm Lata 33 cl","Estrella Galicia Lata 33 cl","Heineken Lata 33 cl","Mahou 5 Estrellas Lata 33 cl",
-             "Mahou Clásica Lata 33 cl","San Miguel Lata 33 cl","Voll Damm Lata 33 cl","Steinburg (Marca Blanca Mercadona) Lata 33 cl",
+             "Mahou Cl?sica Lata 33 cl","San Miguel Lata 33 cl","Voll Damm Lata 33 cl","Steinburg (Marca Blanca Mercadona) Lata 33 cl",
              "Marca Blanca Carrefour Lata 33 cl")
 
 N = length(E_Data$lgtdata)
@@ -42,7 +42,7 @@ save(E_Data,file="Estimation_Data_Beer_20170423.Rdata")
 
 ## estimation preparation for bayesm package
 Prior = list(ncomp=1)
-Mcmc=list(R=6000,keep=2)
+Mcmc=list(R=10000,keep=1)
 
 out_HB = rhierMnlRwMixture(Data=E_Data,Prior=Prior,Mcmc=Mcmc)
 beta_HB = out_HB$betadraw
@@ -53,8 +53,11 @@ windows()
 plot(out_HB$loglike, type="l")
 
 ###Get rid of burnin
-burnin = 1000
+burnin = 1500
 R = dim(beta_HB)[3]
+
+### visually check if it's a stationary time series without burn-in
+plot(out_HB$loglike[(burnin+1):R], type="l")
 
 beta_HB = beta_HB[,,(burnin+1):R]
 compdraw_HB = compdraw_HB[(burnin+1):R]
@@ -154,7 +157,7 @@ optimal_product_esti = which(profits_esti == max(profits_esti[]), arr.ind = TRUE
 plot(profits_esti[],col = "red",type="l",xlab="Price", main="Optimal price of first brand in monopolistic market" ,ylab="Profits");grid()
 abline(v=optimal_product_esti[],col = "red",lty=3,lwd=3)
 
-
+### need to continue working here
 windows()
 par(mfrow=c(3,1))  # multiple plots are filled by rows!!!
 plot(profits_esti[,1],col = "red",type="l",xlab="Product Index", main="Cost Scenario I" ,ylab="Profits");grid()
