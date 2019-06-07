@@ -42,7 +42,7 @@ save(E_Data,file="Estimation_Data_Beer_20170423.Rdata")
 
 ## estimation preparation for bayesm package
 Prior = list(ncomp=1)
-Mcmc=list(R=10000,keep=1)
+Mcmc=list(R=10000,keep=2)
 
 out_HB = rhierMnlRwMixture(Data=E_Data,Prior=Prior,Mcmc=Mcmc)
 beta_HB = out_HB$betadraw
