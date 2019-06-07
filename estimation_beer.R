@@ -41,9 +41,10 @@ save(E_Data,file="Estimation_Data_Beer_20170423.Rdata")
 
 
 ## estimation preparation for bayesm package
-Prior = list(ncomp=1)
+Prior = list(ncomp=1, SignRes = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1)) #no constraint on individual brands, only on price
 Mcmc=list(R=10000,keep=2)
 
+# option with the original function from bayesm
 out_HB = rhierMnlRwMixture(Data=E_Data,Prior=Prior,Mcmc=Mcmc)
 beta_HB = out_HB$betadraw
 compdraw_HB = out_HB$nmix$compdraw
@@ -53,7 +54,7 @@ windows()
 plot(out_HB$loglike, type="l")
 
 ###Get rid of burnin
-burnin = 1500
+burnin = 2000
 R = dim(beta_HB)[3]
 
 ### visually check if it's a stationary time series without burn-in
@@ -96,20 +97,10 @@ beta_HP <- rowMeans(beta_HB,dim=2)
 #Illustrate specified distribution graphically
 windows()
 par(mfrow=c(4,4))
-hist(beta_HP[,1], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 1 Level 1:", round(mean(beta_HP[,1]),digits = 2)));grid()
-hist(beta_HP[,2], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 1 Level 2:", round(mean(beta_HP[,2]),digits = 2)));grid()
-hist(beta_HP[,3], freq = FALSE,breaks=80,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 2 Level 2:", round(mean(beta_HP[,3]),digits = 2)));grid()
-
-hist(beta_HP[,4], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 1 Level 1:", round(mean(beta_HP[,1]),digits = 2)));grid()
-hist(beta_HP[,5], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 1 Level 2:", round(mean(beta_HP[,2]),digits = 2)));grid()
-hist(beta_HP[,6], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
-     main=paste("Attribute 2 Level 2:", round(mean(beta_HP[,3]),digits = 2)));grid()
-
+for (i in 1:15){ #length(E_Data$lgtdata[[]]))
+  hist(beta_HP[,i], freq = FALSE,breaks=100,xlab="BETA",ylab="DENSITY",
+       main=paste(products[i], round(mean(beta_HP[,i]),digits = 2)));grid()
+}
 hist(beta_HP[,16], freq = FALSE,breaks=80,xlab="BETA",ylab="DENSITY",
      main=paste("Price:",  round(mean(beta_HP[,16]),digits = 2)));grid()
 
@@ -154,7 +145,8 @@ optimal_product_esti = which(profits_esti == max(profits_esti[]), arr.ind = TRUE
 # }
 
 ###Plot profit curve for each cost scenarion
-plot(profits_esti[],col = "red",type="l",xlab="Price", main="Optimal price of first brand in monopolistic market" ,ylab="Profits");grid()
+windows()
+plot(profits_esti[],col = "red",type="l",xlab="Price", main=paste("Optimal price for", products[1], "in a monopoly", sep = " ") ,ylab="Profits");grid()
 abline(v=optimal_product_esti[],col = "red",lty=3,lwd=3)
 
 ### need to continue working here
