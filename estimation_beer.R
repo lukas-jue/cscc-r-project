@@ -53,6 +53,28 @@ probdraw_HB = out_HB$nmix$probdraw
 windows()
 plot(out_HB$loglike, type="l")
 
+# # option with modified function (correct constrains)
+# source("rhierMnlRwMixture_main.R")
+# Rcpp::sourceCpp("rhierMnlRwMixture_rcpp_loop_Sim_modHP.cpp",showOutput = FALSE)
+# 
+# #number of constrained coefficients (here only price)
+# nvar_c = 1
+# 
+# ###Prior setting
+# Amu = diag(1/10, nrow = nvar_c, ncol = nvar_c)
+# mustarbarc = matrix(rep(0, nvar_c), nrow = nvar_c)
+# nu = 15 + nvar_c
+# V = nu * diag(nvar_c)*0.5
+# 
+# Prior = list(ncomp = 1, Amu = Amu, mustarbarc = mustarbarc, nu = nu, V = V)
+# 
+# #Prior = list(ncomp=1)
+# Mcmc=list(R=5000,keep=2)
+# out_HB = rhierMnlRwMixture_SR(Data = E_Data, Prior = Prior, Mcmc = Mcmc, nvar_c = nvar_c, flag = "approx")
+# beta_HB = out_HB$betadraw
+# compdraw_HB = out_HB$nmix$compdraw
+# probdraw_HB = out_HB$nmix$probdraw
+
 ###Get rid of burnin
 burnin = 2000
 R = dim(beta_HB)[3]
