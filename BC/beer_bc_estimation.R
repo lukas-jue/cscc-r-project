@@ -18,6 +18,10 @@ library(pracma) # required for approximating Jacobian
 memory.limit(size=100000000)
 
 load("Estimation_Data_Beer_20170423.Rdata")
+products = c("Amstel Extra Lata 37,5 cl","Amstel Extra Lata 33 cl","Amstel Lata 37,5 cl","Amstel Lata 33 cl","Amstel Cl?sica Lata 33 cl",
+             "Cruzcampo Lata 33 cl","Estrella Damm Lata 33 cl","Estrella Galicia Lata 33 cl","Heineken Lata 33 cl","Mahou 5 Estrellas Lata 33 cl",
+             "Mahou Cl?sica Lata 33 cl","San Miguel Lata 33 cl","Voll Damm Lata 33 cl","Steinburg (Marca Blanca Mercadona) Lata 33 cl",
+             "Marca Blanca Carrefour Lata 33 cl")
 
 #reorder that price is first in the design matrix
 for (i in 1:length(E_Data$lgtdata)){
@@ -54,7 +58,7 @@ V = nu * diag(nvar_c)*0.5
 Prior = list(ncomp=1, Amu = Amu, mustarbarc = mustarbarc, nu = nu, V = V)
 Mcmc = list(R=40000, keep=15)#, s=1.6)
 #,s=c(0.1,0.5,0.5,0.5)
-out_HB = rhierMnlRwMixture_SR(Data=E_Data,Prior=Prior,Mcmc=Mcmc,nvar_c=nvar_c,pr=pr,starting_budget = log(2))
+out_HB = rhierMnlRwMixture_SR(Data=E_Data,Prior=Prior,Mcmc=Mcmc,nvar_c=nvar_c,pr=pr,starting_budget = log(0.74))
 
 betastar_id_HB = out_HB$betadraw
 compdraw_HB = out_HB$nmix$compdraw
@@ -124,13 +128,11 @@ beta_id_LLMns[,2] = -exp(betastar_id_LLMns[,2])
 summary(beta_id_LLMns)
 
 ###Compare posterior predictive densities
-summary(beta_pop)
 summary(beta_id_HP)
 summary(beta_id_LLMns)
 summary(beta_id_PM)
 
 ###Fraction of individuals being budget constrained 
-length(which(beta_pop[,1]<3))/dim(beta_pop)[1]
 length(which(beta_id_HP[,1]<3))/dim(beta_id_HP)[1]
 
 ###################################################
@@ -168,10 +170,10 @@ max_price_chosen = apply(price_chosen_perTask,1,max)
 #   }
 # }
 summary(max_price_chosen)
-summary(min_price_notchosen)
+#summary(min_price_notchosen)
 ###Identify respondents being budget constrained a posteriori###
 budget_c_ind = which(max_price_chosen<0.74)
-budget_c_ind = budget_c_ind[105:115]
+#budget_c_ind = budget_c_ind[105:115]
 
 #Save as eps
 #file_name = paste0("Saved_Results/PartII_Basic_Simulation_BC/Conv_betastar_id_HB_budget_TrueBC.eps")
@@ -189,91 +191,48 @@ for (s in 1:length(budget_c_ind)){
 ###Illustrate with only two individuals
 ###
 
-###Start with indi 219 who is not budget constrained but did not chose highest price
+###Start with indi 10 who is not budget constrained but did not chose highest price
 budget_c_ind[10]
 E_Data$lgtdata[[budget_c_ind[10]]]
-exp(betastar[budget_c_ind[10],1])
+#exp(betastar[budget_c_ind[10],1])
 
 #file_name = paste0("Saved_Results/PartII_Basic_Simulation_BC/Conv_betastar_budget_two_boundaries_not_constrained.eps")
 #postscript(file_name, horizontal = FALSE, onefile = FALSE, width=800)
 windows()
 par(mfrow=c(1,1))  # multiple plots are filled by rows!!!
 #for (s in 1:length(budget_c_ind)){
-plot(betastar_id_HB[budget_c_ind[10],1,],xlab="R",ylab="betastar_budget",ylim=c(-2,4),main="Individual 219",type="l",cex.main=2,
+plot(betastar_id_HB[budget_c_ind[10],1,],xlab="R",ylab="betastar_budget",ylim=c(-2,4),main="Individual 10",type="l",cex.main=2,
      cex.lab=1.5 ,font.lab=2 ,font.axis=1 ,cex.axis=1.5);grid()
 abline(h = log(max_price_chosen[budget_c_ind[10]]), lwd=5, col = "red")
-abline(h = log(min_price_notchosen[budget_c_ind[10]]), lwd=5, col = "red",lty=3)
+#abline(h = log(min_price_notchosen[budget_c_ind[10]]), lwd=5, col = "red",lty=3)
 #abline(h = betastar[budget_c_ind[10],1], lwd = 5, col = "blue", lty = 2)
 legend("topright",expression("Log of true budget","Log of maximum price chosen","Log of minimum price not chosen"),cex=1.5,lty=c(2,1,3),lwd=c(5,5,5),
        col=c("blue","red","red"))
 #}
 #dev.off()
 
-###Do the same for indi 200 who is budget constrained and chose p=1 as highest price
+###Do the same for indi 10 who is budget constrained and chose p=1 as highest price
 budget_c_ind[1]
 E_Data$lgtdata[[budget_c_ind[1]]]
-exp(betastar[budget_c_ind[1],1])
+#exp(betastar[budget_c_ind[1],1])
 
 #file_name = paste0("Saved_Results/PartII_Basic_Simulation_BC/Conv_betastar_budget_two_boundaries_constrained.eps")
 #postscript(file_name, horizontal = FALSE, onefile = FALSE, width=800)
 windows()
 par(mfrow=c(1,1))  # multiple plots are filled by rows!!!
 #for (s in 1:length(budget_c_ind)){
-plot(betastar_id_HB[budget_c_ind[1],1,],xlab="R",ylim=c(0,4),ylab="betastar_budget",main="Individual 200",type="l",cex.main=2,
+plot(betastar_id_HB[budget_c_ind[1],1,],xlab="R",ylim=c(-2,4),ylab="betastar_budget",main="Individual 200",type="l",cex.main=2,
      cex.lab=1.5 ,font.lab=2 ,font.axis=1 ,cex.axis=1.5);grid()
 abline(h = log(max_price_chosen[budget_c_ind[1]]), lwd=5, col = "red")
-abline(h = log(min_price_notchosen[budget_c_ind[1]]), lwd=5, col = "red",lty=3)
-abline(h = betastar[budget_c_ind[1],1], lwd = 5, col = "blue", lty = 2)
+#abline(h = log(min_price_notchosen[budget_c_ind[1]]), lwd=5, col = "red",lty=3)
+#abline(h = betastar[budget_c_ind[1],1], lwd = 5, col = "blue", lty = 2)
 legend("topright",expression("Log of true budget","Log of maximum price chosen","Log of minimum price not chosen"),cex=1.5,lty=c(2,1,3),lwd=c(5,5,5),
        col=c("blue","red","red"))
 #}
 #dev.off()
 
-#######################################
-###AGGREGATE DISTRIBUTION
-#######################################
-price_coef_frame = data.frame(price_coef = c(beta_pop[,1],beta_id_LLMns[,1]), model = c(rep("True",length(beta_pop[,1])),
-                                                                                        rep("Inferred budgets",length(beta_id_LLMns[,1]))))
-high_p <- data.frame(Legend ="Highest price", vals = 3)
 
 
-windows()
-ggplot(price_coef_frame, aes(price_coef, fill = model, colour = model)) + 
-  geom_density(alpha = 0.3,size=1.2,bw=1.2) +
-  xlim(0,15) +
-  xlab(TeX('$\\beta_{budget}$')) +
-  ylab("density") +
-  theme(axis.text.x = element_text(size=15),
-        axis.text.y = element_text(size=15),
-        axis.title.x = element_text(size=18),
-        axis.title.y = element_text(size=18),legend.title = element_blank(),legend.key.size = unit(1.2,"cm"),
-        legend.text = element_text(size = 12),legend.position="top") #+ 
-#geom_vline(data = high_p, size = 1.5, aes(xintercept = vals, colour = Legend),show.legend = FALSE) #+
-###save as pdf & eps
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/marginal_density_sim_Budget_TrueBC.pdf",width = 20, height = 20, units = "cm")
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/marginal_density_sim_Budget_TrueBC.eps",width = 20, height = 20, units = "cm")
-#dev.off()
-
-
-
-###SHOW BIAS IN PRICE COEFFICIENT, BRAND H COEFFICIENT & BRAND L COEFFICIENT
-table = cbind(summary_wrong_model_price,summary_wrong_model_brand,summary_wrong_model_brand_l)
-table = cbind(table[,1:2],c(quantile(beta_id_LLMns[,2],probs=c(0.01,0.25,0.5,0.75,0.99)),mean(beta_id_LLMns[,2]),var(beta_id_LLMns[,2])),table[,3:4]
-              ,c(quantile(beta_id_LLMns[,3],probs=c(0.01,0.25,0.5,0.75,0.99)),mean(beta_id_LLMns[,3]),var(beta_id_LLMns[,3])),table[,5:6] 
-              ,c(quantile(beta_id_LLMns[,4],probs=c(0.01,0.25,0.5,0.75,0.99)),mean(beta_id_LLMns[,4]),var(beta_id_LLMns[,4])))   
-table[c(3,6,7),4] = c(6,6,1) #fix moments of b_h
-table[c(3,6,7),7] = c(3,3,1) #fix moments of b_l
-colnames(table)[c(3,6,9)] = c("Inferred budget","Inferred budget","Inferred budget")
-
-View(table)
-
-
-###Market share at highest prices in design
-ms_high_prices = cbind(ms_high_prices,as.vector(computeShares_BC(c(3,3,0),beta_id_LLMns,designBase,pr=1)))
-colnames(ms_high_prices) = c("True","Standard model","Inferred budget")
-rownames(ms_high_prices) = c("High brand","Low brand","Outside")
-
-ms_high_prices
 
 #
 ###Intuition: market shares at highest prices - standard approach vs. population BC
@@ -287,37 +246,23 @@ designBase = rbind(diag(nplayers),rep(0,nplayers)) #choice set
 #
 ###Standard model
 #
-price_grid = seq(0.01,10,0.1) ###increase size of grid for better approximation set 0.01
+price_grid = seq(0.01,2,0.08) ###increase size of grid for better approximation set 0.01
 length(price_grid)
 p_other = rep(0.6,15)
 #
 ###Market demand true model (BC)
 #
-ms_grid_BC_esti <- array(0,dim=c(length(price_grid),3,2))
+ms_grid_BC_esti <- array(0,dim=c(length(price_grid),16,1)) #second dim is 16 (15 brands + 1 price)
 
 for(r in 1:length(price_grid)){
   price_temp = c(price_grid[r],p_other,0)
   ms_grid_BC_esti[r,,1] = computeShares_BC(price_temp,beta_id_LLMns,designBase,pr=2)
 }
 
-######################################################
-###Do the same for low brand given fixed high brand###
-######################################################
-
-#
-###Market demand true model (BC)
-#
-for(r in 1:length(price_grid)){
-  price_temp = c(p_other,price_grid[r],0)
-  ms_grid_BC_esti[r,,2] = computeShares_BC(price_temp,beta_id_LLMns,designBase,pr=1)
-}
-
-###AGGREGATE DEMAND HIGH BRAND###
-#file_name = paste0("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_PopStandardBCSampler_i_and_iv_h_b.eps")
-#postscript(file_name, horizontal = FALSE, onefile = FALSE, width=800)
+###AGGREGATE FIRST BEER BRAND###
 windows()
 par(mfrow=c(1,1))
-plot(price_grid,ms_grid[,1,1],type="l",lty=1,lwd=4,pch=19,col="red",xlim=c(0,10),main="High brand",
+plot(price_grid,ms_grid_BC_esti[,1,1],type="l",lty=1,lwd=4,pch=19,col="red",xlim=c(0,2),main=products[1],
      xlab="Price",ylab="Demand",cex.main=2,cex.lab=1.5 ,font.lab=2 ,font.axis=1 ,cex.axis=1.5);grid()
 lines(price_grid,ms_grid_BC_esti[,1,1],lwd=4,pch=19,col="blue")
 #lines(price_grid,ms_grid_BC_true[,1,1],lwd=4,pch=19,col="black")
@@ -327,51 +272,99 @@ abline(v=0,lwd=1,lty=1)
 abline(v=p_other,lwd=4,lty=3,col="black")
 legend("topright",expression("Standard model", "Inferred budget","Fixed price"),
        cex=1.2,lty=c(1,1,3),lwd=c(4,4,4),col=c("red","blue","black"))
-#dev.off()
 
-#############
-###GGPLOT2###
-#############
-market_demand_frame = data.frame(market_demand = c(ms_grid[,1,1],ms_grid_BC_esti[,1,1]), x = c(price_grid,price_grid),
-                                 model = c(rep("Standard model",length(ms_grid[,1,1])),
-                                           rep("Inferred budgets",length(ms_grid_BC_esti[,1,1]))))
+# drawing price demand curve with ggplot2
+# create data frame for ggplot()
+market_demand_frame = data.frame(market_demand = ms_grid_BC_esti[,1,1], x = price_grid,
+                                 model = rep("Inferred budgets",length(ms_grid_BC_esti[,1,1])))
 
-market_demand_frame_lb = data.frame(market_demand = c(ms_grid[,2,2],ms_grid_BC_esti[,2,2]), x = c(price_grid,price_grid),
-                                    model = c(rep("Standard model",length(ms_grid[,1,1])),
-                                              rep("Inferred budgets",length(ms_grid_BC_esti[,1,1]))))
+ggplot(market_demand_frame, aes(x, market_demand)) +
+  geom_line() +
+  labs(title = products[1],
+       subtitle = paste("Price-demand curve, price of other brands = ", "EUR ", p_other),
+       x = "Price",
+       y = "Demand") +
+  geom_vline(xintercept = 0, color = "red", linetype = "dashed")+
+  geom_vline(xintercept = p_other, color = "blue", linetype = "dashed")
 
-windows()
-ggplot(market_demand_frame, aes(x=x, y=market_demand, fill = model, colour = model)) +
-  ggtitle("High brand") +
-  geom_line(size=1.5) +
-  xlim(0,10) +
-  xlab("price") +
-  ylab("demand") +
-  theme(axis.text.x = element_text(size=15),
-        axis.text.y = element_text(size=15),
-        axis.title.x = element_text(size=18),
-        axis.title.y = element_text(size=18),legend.title = element_blank(),legend.position="none",#legend.key.size = unit(1.2,"cm"),legend.text = element_text(size = 12)
-        plot.title = element_text(size = 18, hjust = 0.5))#,legend.position="top") 
-###save as pdf & eps
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_high_b.pdf",width = 20, height = 20, units = "cm")
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_high_b.eps",width = 20, height = 20, units = "cm")
-#dev.off()
 
-windows()
-ggplot(market_demand_frame_lb, aes(x=x, y=market_demand, fill = model, colour = model)) +
-  ggtitle("Low brand") +
-  geom_line(size=1.5) +
-  xlim(0,10) +
-  ylim(0,1) +
-  xlab("price") +
-  ylab("demand") +
-  theme(axis.text.x = element_text(size=15),
-        axis.text.y = element_text(size=15),
-        axis.title.x = element_text(size=18),
-        axis.title.y = element_text(size=18),legend.title = element_blank(),legend.key.size = unit(1.2,"cm"),
-        legend.text = element_text(size = 12),plot.title = element_text(size = 18, hjust = 0.5))#,legend.position="top") 
-###save as pdf & eps
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_low_b.pdf",width = 20, height = 20, units = "cm")
-#ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_low_b.eps",width = 20, height = 20, units = "cm")
-#dev.off()
+#--------------------------------
+#not applicable below
+#--------------------------------
+
+
+# ######################################################
+# ###Do the same for low brand given fixed high brand###
+# ######################################################
+# 
+# #
+# ###Market demand true model (BC)
+# #
+# for(r in 1:length(price_grid)){
+#   price_temp = c(p_other,price_grid[r],0)
+#   ms_grid_BC_esti[r,,2] = computeShares_BC(price_temp,beta_id_LLMns,designBase,pr=1)
+# }
+# 
+# ###AGGREGATE DEMAND HIGH BRAND###
+# #file_name = paste0("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_PopStandardBCSampler_i_and_iv_h_b.eps")
+# #postscript(file_name, horizontal = FALSE, onefile = FALSE, width=800)
+# windows()
+# par(mfrow=c(1,1))
+# plot(price_grid,ms_grid[,1,1],type="l",lty=1,lwd=4,pch=19,col="red",xlim=c(0,10),main="High brand",
+#      xlab="Price",ylab="Demand",cex.main=2,cex.lab=1.5 ,font.lab=2 ,font.axis=1 ,cex.axis=1.5);grid()
+# lines(price_grid,ms_grid_BC_esti[,1,1],lwd=4,pch=19,col="blue")
+# #lines(price_grid,ms_grid_BC_true[,1,1],lwd=4,pch=19,col="black")
+# #lines(price_grid,ms_grid[,2,2],lwd=4,pch=19,col="blue",lty=2)
+# #lines(price_grid,ms_grid_BC_esti[,2,2],lwd=4,pch=19,col="green",lty=2)
+# abline(v=0,lwd=1,lty=1)
+# abline(v=p_other,lwd=4,lty=3,col="black")
+# legend("topright",expression("Standard model", "Inferred budget","Fixed price"),
+#        cex=1.2,lty=c(1,1,3),lwd=c(4,4,4),col=c("red","blue","black"))
+# #dev.off()
+# 
+# #############
+# ###GGPLOT2###
+# #############
+# market_demand_frame = data.frame(market_demand = c(ms_grid[,1,1],ms_grid_BC_esti[,1,1]), x = c(price_grid,price_grid),
+#                                  model = c(rep("Standard model",length(ms_grid[,1,1])),
+#                                            rep("Inferred budgets",length(ms_grid_BC_esti[,1,1]))))
+# 
+# market_demand_frame_lb = data.frame(market_demand = c(ms_grid[,2,2],ms_grid_BC_esti[,2,2]), x = c(price_grid,price_grid),
+#                                     model = c(rep("Standard model",length(ms_grid[,1,1])),
+#                                               rep("Inferred budgets",length(ms_grid_BC_esti[,1,1]))))
+# 
+# windows()
+# ggplot(market_demand_frame, aes(x=x, y=market_demand, fill = model, colour = model)) +
+#   ggtitle("High brand") +
+#   geom_line(size=1.5) +
+#   xlim(0,10) +
+#   xlab("price") +
+#   ylab("demand") +
+#   theme(axis.text.x = element_text(size=15),
+#         axis.text.y = element_text(size=15),
+#         axis.title.x = element_text(size=18),
+#         axis.title.y = element_text(size=18),legend.title = element_blank(),legend.position="none",#legend.key.size = unit(1.2,"cm"),legend.text = element_text(size = 12)
+#         plot.title = element_text(size = 18, hjust = 0.5))#,legend.position="top") 
+# ###save as pdf & eps
+# #ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_high_b.pdf",width = 20, height = 20, units = "cm")
+# #ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_high_b.eps",width = 20, height = 20, units = "cm")
+# #dev.off()
+# 
+# windows()
+# ggplot(market_demand_frame_lb, aes(x=x, y=market_demand, fill = model, colour = model)) +
+#   ggtitle("Low brand") +
+#   geom_line(size=1.5) +
+#   xlim(0,10) +
+#   ylim(0,1) +
+#   xlab("price") +
+#   ylab("demand") +
+#   theme(axis.text.x = element_text(size=15),
+#         axis.text.y = element_text(size=15),
+#         axis.title.x = element_text(size=18),
+#         axis.title.y = element_text(size=18),legend.title = element_blank(),legend.key.size = unit(1.2,"cm"),
+#         legend.text = element_text(size = 12),plot.title = element_text(size = 18, hjust = 0.5))#,legend.position="top") 
+# ###save as pdf & eps
+# #ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_low_b.pdf",width = 20, height = 20, units = "cm")
+# #ggsave("Saved_Results/PartII_Basic_Simulation_BC/Empirical_Demand_Function_BC_Standard_low_b.eps",width = 20, height = 20, units = "cm")
+# #dev.off()
 
